@@ -1,10 +1,19 @@
 import dotenv from "dotenv";
 // require("dotenv").config({ path: "./env" });
 import  connectDB  from "./db/index.js";
-
+import app from "./app.js";
 dotenv.config({ path: "./.env" });
 connectDB()
-
+.then(() => {
+    console.log("Database connection successful");
+    app.get("connected", (req, res) => {
+        res.send("Connected to the database successfully!");
+    });
+})
+.catch((error) => {
+    console.error("Database connection failed:", error);
+}
+);
 
 
 
