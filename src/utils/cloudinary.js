@@ -1,6 +1,12 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs'; 
+import dotenv from 'dotenv';
 
+dotenv.config(
+        {
+            path: "./.env" // Load environment variables from .env file
+        }
+); // Load environment variables from .env file
 
     // Configuration
     cloudinary.config({ 
@@ -11,15 +17,16 @@ import fs from 'fs';
     
     // Function to upload a file to Cloudinary
     const uploadfileoncloudinay = async (localfilepath) => {
-        try{if (!localfilepath) {
+        try{
+            if (!localfilepath) {
             return null;
         }
             const res = await cloudinary.uploader.upload(localfilepath, {
-                resource_type:"auto"
+                resource_type:"auto",
         })
         // file uploaded successfully
-        console.log("File uploaded successfully:", res);
-        
+        // console.log("File uploaded successfully:", res.url);
+        fs.unlinkSync(localfilepath); // Delete the local file after upload
         return res;
 
     }

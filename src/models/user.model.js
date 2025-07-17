@@ -30,17 +30,17 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String, // this is used to store the avatar cloudinary URL
-        required:true
+        
     },
     coverImage: {
-        type:String , //    this is used to store the cover image cloudinary URL
+        type:String  //    this is used to store the cover image cloudinary URL
     },
     password: {
         type: String,
         required: [true, "Password is required"],
         select: false // this is used to hide the password field when querying the database
     },
-    refreahToken:{
+    refreshToken:{
         type: String,
         default: null // this is used to store the refresh token for the user
     },
