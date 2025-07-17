@@ -28,4 +28,10 @@ app.use(cookieParser()); // this is used to parse cookies from the client side
 
 app.use(express.static("public")); // this is used to serve static files from the public directory
 
+
+// router 
+import userRouter from "./routes/user.routes.js";
+
+app.use("/api/v1/user", userRouter); // this is used to handle user related routes
+
 export {app};
