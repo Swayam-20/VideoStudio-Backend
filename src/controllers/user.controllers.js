@@ -17,7 +17,8 @@ const registeruser = asynchandeler( async (req, res) => {
      // send response to client
     
     const {email,password,fullname,username}=req.body;
-    console.log(email);
+    
+    // console.log(email);
 
     if(
         [email,password,username,fullname].some((field) => 
@@ -36,8 +37,14 @@ const registeruser = asynchandeler( async (req, res) => {
     }
     const avatarlocalpath=req.files?.avatar[0]?.path;
 
-    const coverImagelocalpath=req.files?.coverImage[0]?.path;
+    // const coverImagelocalpath=req.files?.coverImage[0]?.path;
 
+    // new method
+    let coverImagelocalpath;
+    if
+(req.files?.coverImage && req.files.coverImage.length > 0) {
+        coverImagelocalpath = req.files.coverImage[0].path;
+    }
     if(!avatarlocalpath || !coverImagelocalpath){
         throw new ApiError("Avatar and cover image are required", 400);
     }
