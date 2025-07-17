@@ -6,7 +6,7 @@ const app = express();
 
 app.use(cors(// this is used to enable CORS (Cross-Origin Resource Sharing)
     {
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
+        origin: process.env.CLIENT_URL ,
         credentials: true,
     }
 ));

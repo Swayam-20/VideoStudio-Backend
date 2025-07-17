@@ -10,7 +10,7 @@ import fs from 'fs';
     });
     
     // Function to upload a file to Cloudinary
-    const uploadfile = async (localfilepath) => {
+    const uploadfileoncloudinay = async (localfilepath) => {
         try{if (!localfilepath) {
             return null;
         }
@@ -30,5 +30,5 @@ import fs from 'fs';
     }
 }
 
-export default uploadfile;
+export default uploadfileoncloudinay;
     
