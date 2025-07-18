@@ -1,6 +1,8 @@
 import {Router} from 'express';
-import { registeruser } from '../controllers/user.controllers.js';
+import { loggoutuser, loginuser, registeruser } from '../controllers/user.controllers.js';
 import {upload} from '../middlewares/multer.middleware.js'; // Assuming you have a multer setup for file uploads
+
+import verifyJWT from '../middlewares/auth.middleware.js';
 const router = Router();
 
 router.route("/register").post(
@@ -10,4 +12,8 @@ router.route("/register").post(
     ]), // Specify the fields you want to upload, e.g., [{ name: 'avatar' }, { name: 'coverImage' }]
 
     registeruser);
+
+router.route("/login").post(loginuser)
+router.route("/logout").post(verifyJWT,loggoutuser)
+
 export default router;

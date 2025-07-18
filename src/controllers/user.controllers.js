@@ -4,6 +4,20 @@ import User from "../models/user.model.js";
 import uploadfileoncloudinay from "../utils/cloudinary.js";
 import Apiresponse from "../utils/Apiresponse.js";
 
+// method to generate access token and refresh token
+    const generateAccessTokenAndRefreshTOKEN = async (userID) => {
+        const user = await User.findById(userID)
+
+        const accessToken=user.generateAccessToken()
+        const refreshToken=user.generateRefreshToken();
+
+        user.refreshToken= refreshToken;
+
+        await user.save({validatebeforeSave: false});
+        return { accessToken, refreshToken };
+    }
+
+
 const registeruser = asynchandeler( async (req, res) => {
 
      // user detail
@@ -80,4 +94,93 @@ const registeruser = asynchandeler( async (req, res) => {
     );
 }
 )
-export {registeruser};
+
+const loginuser = asynchandeler(async (req, res) => {
+    // user detail input
+    // check user account is registered or not
+    // validation or not
+    // send to client refresh token and access token
+    // session time
+    // save session time in database
+    // send response to client that user is logged in successfully
+    
+
+    const {email,username, password} = req.body;
+    if(!email || !username || !password){
+        throw new ApiError("Email and password are required", 400);
+    }
+
+    if(!email.includes("@")){
+        throw new ApiError("Invalid email format", 400);
+    }
+
+    const user= await User.findOne({
+        $or: [{ email }, { username: username.toLowerCase() }]
+        })//.select("+password +refreshToken +accessToken");
+
+    if(!user){
+        throw new ApiError("User not found", 404);
+    }
+
+    const isPasswordCorrect = await user.ispasswordcorrect(password);
+
+    if(!isPasswordCorrect){
+        throw new ApiError("Incorrect password", 401);
+    }
+    // generate access token and refresh token
+    const { accessToken, refreshToken } = await generateAccessTokenAndRefreshTOKEN(user._id);
+    const loggedUser = await User.findById(user._id).select("-password -refreshToken");
+    const option ={
+        httpOnly:true,
+        secure : true
+    }
+    return res
+    .status(200)
+    .cookie("refreshToken", refreshToken, option)
+    .cookie("accessToken", accessToken, option)
+    .json(
+        new Apiresponse(
+            200,
+            "User logged in successfully",
+            {
+                user : {
+                    loggedUser,
+                    accessToken,refreshToken
+                }
+            }
+        )
+    )
+
+
+
+})
+
+const loggoutuser = asynchandeler(async (req,res) =>{
+    User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        })
+        const option ={
+        httpOnly:true,
+        secure : true
+    }
+    
+    return res
+        .status(200)
+        .clearcookie("refreshToken", option) // cookie("refreshToken", null, option)
+        .clearcookie("accessToken", option)  // cookie("accessToken", null, option)
+        .json(
+            new Apiresponse(
+                200,
+                "User logged out successfully",
+                {}
+            )
+        )
+})
+export { registeruser, loginuser , loggoutuser };
