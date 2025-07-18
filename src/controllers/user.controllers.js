@@ -1,5 +1,5 @@
 import asynchandeler from "../utils/asynchandler.js";
-import ApiError from "../utils/ApiError.js";
+import ApiError from "../utils/ApiError.js"
 import User from "../models/user.model.js";
 import uploadfileoncloudinay from "../utils/cloudinary.js";
 import Apiresponse from "../utils/Apiresponse.js";
@@ -41,14 +41,14 @@ const registeruser = asynchandeler( async (req, res) => {
         )
     )
     {
-        throw new ApiError("All fields are required", 400);
+        throw new Apierror("All fields are required", 400);
     }
 
     const existdetail=await User.findOne({
         $or: [{ email },{ username }]
     })
     if(existdetail){
-        throw new ApiError("Email or username already exists", 409);
+        throw new Apierror("Email or username already exists", 409);
     }
     const avatarlocalpath=req.files?.avatar[0]?.path;
 
@@ -57,7 +57,7 @@ const registeruser = asynchandeler( async (req, res) => {
     // new method
     let coverImagelocalpath;
     if
-(req.files?.coverImage && req.files.coverImage.length > 0) {
+    (req.files?.coverImage && req.files.coverImage.length > 0) {
         coverImagelocalpath = req.files.coverImage[0].path;
     }
     if(!avatarlocalpath || !coverImagelocalpath){
@@ -108,11 +108,11 @@ const loginuser = asynchandeler(async (req, res) => {
 
     const {email,username, password} = req.body;
     if(!email && !username){
-        throw new ApiError("Email and username are required", 400);
+        throw new Apierror("Email and username are required", 400);
     }
 
     if(!email.includes("@")){
-        throw new ApiError("Invalid email format", 400);
+        throw new Apierror("Invalid email format", 400);
     }
 
     const user= await User.findOne({
@@ -120,13 +120,13 @@ const loginuser = asynchandeler(async (req, res) => {
         }).select("+password ");
 
     if(!user){
-        throw new ApiError("User not found", 404);
+        throw new Apierror("User not found", 404);
     }
 
     const isPasswordCorrect = await user.ispasswordcorrect(password);
 
     if(!isPasswordCorrect){
-        throw new ApiError("Incorrect password", 401);
+        throw new Apierror("Incorrect password", 401);
     }
     // generate access token and refresh token
     const { accessToken, refreshToken } = await generateAccessTokenAndRefreshTOKEN(user._id);
@@ -236,4 +236,151 @@ const RefreshAccessToken = asynchandeler(async (req,res)=>{
             )
         }
 })
-export { RefreshAccessToken, registeruser, loginuser , loggoutuser };
+
+const changecurrentpassword = asynchandeler(async (req,res)=>{
+    const {oldpassword,newpassword}=req.body
+    
+    const user = await User.findById(req.user?._id).select("+password")
+    const ispasswordcorrect = await user.ispasswordcorrect(oldpassword)
+
+    if(!ispasswordcorrect){
+        throw new Apierror(
+            "wrong input old password",401 ,error
+        )
+    }
+    try {
+        user.password=newpassword
+    
+    
+        user.save({validatebeforeSave:false})
+        return res
+        .status(200)
+        .json(
+            new Apiresponse(
+                201,{},"password change succesfully"
+            )
+        )
+    } catch (error) {
+        throw new Apierror(
+            "Invalid entry ",401,error
+        )
+    }
+})
+
+const getcurrentuser = asynchandeler(async(req,res)=>{
+    return res.status(200).json(
+        new Apiresponse(
+            201,req.user,"Current user"
+        )
+    )
+})
+
+const updateUserDetail = asynchandeler( async(req,res)=>{
+    const {email, fullname} = req.body
+
+    if(!email || !fullname){
+        throw new Apierror(
+            "Required All fields",401
+        )
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{fullname,email}
+        },
+        {
+            new:true
+        }
+    ).select("-password")
+
+
+    return res.status(200).json(
+        new Apiresponse(
+            201,
+            {user},
+            "Detail Update successfully",
+
+        )
+    )
+})
+
+const updateUserAvatar = asynchandeler (async (req,res)=>{
+
+    const avatarlocalpath= req.file?.path
+    if(!avatarlocalpath){
+        throw new Apierror(
+            "invalid path",401
+        
+        )
+    }
+    const avatar = await uploadfileoncloudinay(avatarlocalpath)
+    if(!avatar.url){
+        throw new Apierror(
+            "file not uploaded",500
+        )
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                avatar:avatar.url
+            }
+        },
+        {
+            new:true
+        }
+    )
+    return res.status(200).json(
+        new Apiresponse(
+            201,
+            user,
+            "Avatar updated successfully"
+        )
+    )
+})
+
+const updateUserCoverImage = asynchandeler (async (req,res)=>{
+
+    const coverImagelocalpath= req.file?.path
+    if(!coverImagelocalpath){
+        throw new Apierror(
+            "invalid path",401
+        
+        )
+    }
+    const coverImage = await uploadfileoncloudinay(coverImagelocalpath)
+    if(!coverImage.url){
+        throw new Apierror(
+            "file not uploaded",500
+        )
+    }
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                coverImage:coverImage.url
+            }
+        },
+        {
+            new:true
+        }
+    )
+    return res.status(200).json(
+        new Apiresponse(
+            201,
+            user,
+            "Avatar updated successfully"
+        )
+    )
+})
+export { 
+    RefreshAccessToken,
+    registeruser,
+    loginuser ,
+    loggoutuser ,
+    changecurrentpassword ,
+    getcurrentuser,
+    updateUserDetail,
+    updateUserAvatar,
+    updateUserCoverImage
+};
