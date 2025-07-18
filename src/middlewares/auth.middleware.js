@@ -12,12 +12,12 @@ const verifyJWT = asynchandeler((req, _, next) => {
     // this middleware is used to verify the JWT token
 
     try {
-        const token =req.cookies?.accessToken || req.headers.authorization?.replace("Bearer ", "");
+        const token =req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
         
         if(!token){
             throw new Apierror("You are not authorized to access this resource", 401);
         }
-        const verifytoken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
+        const verifytoken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET) // decodedtoken
         
         const user = User.findById(verifytoken._id).select("-password -refreshToken");
         if(!user){

@@ -56,11 +56,11 @@ const userSchema = new Schema({
 userSchema.pre("save", async function (next) {
     // this is used to hash the password before saving it to the database
     if (!this.isModified("password")) return next();
-    const salt = await bcrypt.genSalt(10); // this is used to generate a salt for hashing the password
-    this.password = await bcrypt.hash(this.password, salt||10);
+    // const salt = await bcrypt.genSalt(10); // this is used to generate a salt for hashing the password
+    this.password = await bcrypt.hash(this.password, 10);
     next();
 });
-// custom method 
+// custom method
 userSchema.methods.ispasswordcorrect = async function(password){
     return await bcrypt.compare(password, this.password);
 }
