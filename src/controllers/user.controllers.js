@@ -5,6 +5,7 @@ import uploadfileoncloudinay from "../utils/cloudinary.js";
 import Apiresponse from "../utils/Apiresponse.js";
 import jwt from "jsonwebtoken";
 import Apierror from "../utils/ApiError.js";
+import deletefileoncloudinary from "../utils/cloudinary.js"
 // method to generate access token and refresh token
     const generateAccessTokenAndRefreshTOKEN = async (userID) => {
         const user = await User.findById(userID)
@@ -319,6 +320,12 @@ const updateUserAvatar = asynchandeler (async (req,res)=>{
             "file not uploaded",500
         )
     }
+    const deleteoldavatar = await deletefileoncloudinary(req.user?.avatar.url)
+    if(!deleteoldavatar){
+        throw new ApiError(
+            "failde to delete old avatar" , 501
+        )
+    }
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
@@ -373,7 +380,89 @@ const updateUserCoverImage = asynchandeler (async (req,res)=>{
         )
     )
 })
-export { 
+
+const getUserChannelprofile = asynchandeler(async (req,res)=>{
+    const {username} = req.params
+
+    if(!username){
+        throw new Apierror(
+            "username is not valid" , 400
+        )
+    }
+
+    const channel = await User.aggregate([
+        {
+            $match:{
+                username : username.toLowerCase()
+            }
+        },
+        {
+            $lookup:{
+                from:"subscriptions",
+                localField:"_id",
+                foreignField:"subscriber",
+                as:"subscribedTo"
+            }
+        },
+        {
+            $lookup:{
+                from:"subscriptions",
+                localField:"_id",
+                foreignField:"channel",
+                as:"subscribers"
+            }
+        },
+        {
+            $addFields:{
+                subscribers:{
+                    $size:"$subscribers"
+                },
+                subscribedTo:{
+                    $size:"$subscribedTo"
+                },
+                issubscribe:{
+                    $cond:{
+                        if:{
+                            $in :
+                                [req.user?._id , "$subscribers.subscribe"]
+                            
+                            },
+                        then : true,
+                        else :false
+                        }
+                    }
+                }
+        },
+        {
+            $project:{
+                fullname:1,
+                username:1,
+                avatar:1,
+                issubscribe:1,
+                subscribedTo:1,
+                subscribers:1,
+                email:1,
+                coverImage:1
+            }
+        }
+    ])
+
+    if(!channel.length)
+        throw new ApiError(
+    "channel doesn't exist",
+400)
+
+            return res.status(200)
+            .json(
+                new Apiresponse(
+                    200,
+                    channel[0],
+                    "User channel"
+                )
+            )
+})
+
+export {
     RefreshAccessToken,
     registeruser,
     loginuser ,
@@ -382,5 +471,6 @@ export {
     getcurrentuser,
     updateUserDetail,
     updateUserAvatar,
-    updateUserCoverImage
+    updateUserCoverImage,
+    getUserChannelprofile
 };
