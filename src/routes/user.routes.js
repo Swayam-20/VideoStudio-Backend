@@ -25,12 +25,12 @@ router.route("/register").post(
 
 router.route("/login").post(loginuser);
 router.route("/logout").post(verifyJWT,loggoutuser);
-router.route("/refreshAccessToken").post(RefreshAccessToken)
-router.route("/change-password").post(verifyJWT,changecurrentpassword)
-router.route("/current-user").get(verifyJWT,getcurrentuser)
-router.route("/update-user-detail").patch(verifyJWT,updateUserDetail)
-router.route("/update-user-avatar").patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
-router.route("/update-user-cover-image").patch(verifyJWT,upload.single("coverImage"),updateUserCoverImage)
-router.route("/c/:username").get(verifyJWT,getUserChannelprofile)
-router.route("/watch-histroy").get(verifyJWT,getwatchHistory)
+router.route("/refreshAccessToken").post(RefreshAccessToken);
+router.route("/changepassword").post(verifyJWT,changecurrentpassword);
+router.route("/currentuser").get(verifyJWT,getcurrentuser);
+router.route("/update-user-detail").patch(verifyJWT,updateUserDetail);
+router.route("/update-user-avatar").patch(verifyJWT,upload.single("avatar"),updateUserAvatar);
+router.route("/update-user-cover-image").patch(verifyJWT,upload.single("coverImage"),updateUserCoverImage);
+router.route("/c/:username").get(verifyJWT,getUserChannelprofile);
+router.route("/watch-histroy").get(verifyJWT,getwatchHistory);
 export default router;

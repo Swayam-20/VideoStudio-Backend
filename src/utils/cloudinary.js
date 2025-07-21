@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs'; 
 import dotenv from 'dotenv';
-import Apierror from './ApiError';
+
 
 dotenv.config(
         {
@@ -36,27 +36,28 @@ dotenv.config(
         return null;
 
     }}
-    const deletefileoncloudinary= async(localfilepath)=>{
-        if(!localfilepath)
-        {
-            return null;
+    // const deletefileoncloudinary= async(localfilepath)=>{
+    //     if(!localfilepath)
+    //     {
+    //         return null;
 
-        }
-        const publicIdWithExtension = localfilepath.split('/').slice(-1)[0];
-        const publicId = path.parse(publicIdWithExtension).name;
+    //     }
+    //     const publicIdWithExtension = localfilepath.split('/').slice(-1)[0];
+    //     const publicId = path.parse(publicIdWithExtension).name;
 
-        const result = await cloudinary.uploader.destroy(publicId);
-        if(!result){
-            throw new Apierror(
-                "failed to delete file" , 500
-            )
-        }
-        return result;
+    //     const result = await cloudinary.uploader.destroy(publicId);
+    //     if(!result){
+    //         throw new Apierror(
+    //             "failed to delete file" , 500
+    //         )
+    //     }
+    //     return result;
         
         
-    }
+    // }
 
 
-export default {uploadfileoncloudinay,deletefileoncloudinary} ;
+export default   uploadfileoncloudinay 
+
 
     
