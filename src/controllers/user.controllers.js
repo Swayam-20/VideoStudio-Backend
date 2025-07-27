@@ -166,13 +166,13 @@ const RefreshAccessToken = asynchandeler(async (req, res) => {
             secure: true
         };
 
-        const { accessToken, newrefreshtoken } = await generateAccessTokenAndRefreshTOKEN(decodedtoken._id);
-
+        const { accessToken, refreshToken } = await generateAccessTokenAndRefreshTOKEN(decodedtoken._id);
+        // console.log(refreshToken)
         return res
             .status(200)
             .cookie("accessToken", accessToken, options)
-            .cookie("refreshToken", newrefreshtoken, options)
-            .json(new Apiresponse(200, { accessToken, refreshToken: newrefreshtoken, options }, "Access Token refresh"));
+            .cookie("refreshToken", refreshToken, options)
+            .json(new Apiresponse(200, { accessToken, refreshToken, options }, "Access Token refresh"));
     } catch (error) {
         throw new Apierror(error?.message || "Invalid Refresh token", 401);
     }
@@ -180,26 +180,41 @@ const RefreshAccessToken = asynchandeler(async (req, res) => {
 
 const changecurrentpassword = asynchandeler(async (req, res) => {
     const { oldpassword, newpassword } = req.body;
+    console.log(oldpassword)
+    console.log(newpassword)
+    
+    const user =  User.findById(req.user._id).select("+password")
+    console.log(user._id)
+    if(!user){
+        throw new Apierror("user not found",401)
+    }
+    const passwordcorrect = await user.ispasswordcorrect(oldpassword);
 
-    const user = await User.findById(req.user?._id)
-    const ispasswordcorrect = await user.ispasswordcorrect(oldpassword);
-
-    if (!ispasswordcorrect) {
+    if (!passwordcorrect) {
         throw new Apierror("wrong input old password", 401);
     }
+    console.log("************")
 
     
         user.password = newpassword;
         await user.save({ validatebeforeSave: false });
-
         
     
-    return res.status(200).json(new Apiresponse(201, user.password, "password change successfully"));
+    return res
+    .status(200)
+    .json(new Apiresponse
+        (
+            201, {}, "password change successfully"
+        )
+    );
 
 });
 
 const getcurrentuser = asynchandeler(async (req, res) => {
-    return res.status(200).json(new Apiresponse(201, req.user, "Current user"));
+    // If req.user contains a Mongoose document or a raw MongoDB object,
+    //  it may have internal references that cause this error.
+    const { _id , username , fullname }=req.user
+    return res.status(200).json(new Apiresponse(201,{ _id , username , fullname }, "Current user"));
 });
 
 const updateUserDetail = asynchandeler(async (req, res) => {
