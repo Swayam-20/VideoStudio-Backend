@@ -38,7 +38,7 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
-        select: false // this is used to hide the password field when querying the database
+         // this is used to hide the password field when querying the database
     },
     refreshToken:{
         type: String,

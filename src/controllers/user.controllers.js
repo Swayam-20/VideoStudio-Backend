@@ -182,9 +182,9 @@ const changecurrentpassword = asynchandeler(async (req, res) => {
     const { oldpassword, newpassword } = req.body;
     console.log(oldpassword)
     console.log(newpassword)
-    
-    const user =  User.findById(req.user._id).select("+password")
-    console.log(user._id)
+    const {_id} = req.user
+    const user = await User.findById(_id).select("+password")
+    console.log(_id)
     if(!user){
         throw new Apierror("user not found",401)
     }
@@ -214,6 +214,7 @@ const getcurrentuser = asynchandeler(async (req, res) => {
     // If req.user contains a Mongoose document or a raw MongoDB object,
     //  it may have internal references that cause this error.
     const { _id , username , fullname }=req.user
+    console.log(username)
     return res.status(200).json(new Apiresponse(201,{ _id , username , fullname }, "Current user"));
 });
 
@@ -224,13 +225,13 @@ const updateUserDetail = asynchandeler(async (req, res) => {
         throw new Apierror("Required All fields", 401);
     }
 
-    const user = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
         req.user?._id,
         { $set: { fullname, email } },
         { new: true }
     ).select("-password");
-
-    return res.status(200).json(new Apiresponse(201,  user , "Detail Update successfully"));
+    
+    return res.status(200).json(new Apiresponse(201, {fullname,email} , "Detail Update successfully"));
 });
 
 const updateUserAvatar = asynchandeler(async (req, res) => {
@@ -277,20 +278,20 @@ const updateUserCoverImage = asynchandeler(async (req, res) => {
         { new: true }
     ).select("-password");
 
-    return res.status(200).json(new Apiresponse(201, user, "Avatar updated successfully"));
+    return res.status(200).json(new Apiresponse(201, user, "cover Image updated successfully"));
 });
 
 const getUserChannelprofile = asynchandeler(async (req, res) => {
     const { username } = req.params;
-
-    if (!username) {
-        throw new Apierror("username is not valid", 400);
+    // console.log(username)
+    if (!username.trim() ==="") {
+        throw new Apierror("not valid a user", 400);
     }
 
     const channel = await User.aggregate([
         {
             $match: {
-                username: username.toLowerCase()
+                username: username?.toLowerCase()
             }
         },
         {
@@ -311,11 +312,11 @@ const getUserChannelprofile = asynchandeler(async (req, res) => {
         },
         {
             $addFields: {
-                subscribers: { $size: "$subscribers" },
-                subscribedTo: { $size: "$subscribedTo" },
+                channelsubscribers: { $size: "$subscribers" },
+                channelsubscribedTo: { $size: "$subscribedTo" },
                 issubscribe: {
                     $cond: {
-                        if: { $in: [req.user?._id, "$subscribers.subscribe"] },
+                        if: { $in: [req.user?._id, "$subscribers.subscriber"] },
                         then: true,
                         else: false
                     }
@@ -328,14 +329,14 @@ const getUserChannelprofile = asynchandeler(async (req, res) => {
                 username: 1,
                 avatar: 1,
                 issubscribe: 1,
-                subscribedTo: 1,
-                subscribers: 1,
+                channelsubscribedTo: 1,
+                channelsubscribers: 1,
                 email: 1,
                 coverImage: 1
             }
         }
     ]);
-
+    console.log(channel.length)
     if (!channel.length) {
         throw new Apierror("channel doesn't exist", 400);
     }
@@ -344,10 +345,13 @@ const getUserChannelprofile = asynchandeler(async (req, res) => {
 });
 
 const getwatchHistory = asynchandeler(async (req, res) => {
+    const {_id} = req.user
+    // console.log(_id)
     const user = await User.aggregate([
         {
             $match: {
-                _id: mongoose.Types.ObjectId(req.user._id)
+                
+                _id:_id
             }
         },
         {
@@ -356,6 +360,7 @@ const getwatchHistory = asynchandeler(async (req, res) => {
                 localField: "watchHistory",
                 foreignField: "_id",
                 as: "watchHistory",
+                
                 pipeline: [
                     {
                         $lookup: {
@@ -363,6 +368,7 @@ const getwatchHistory = asynchandeler(async (req, res) => {
                             localField: "owner",
                             foreignField: "_id",
                             as: "owner",
+                            
                             pipeline: [
                                 {
                                     $addFields: {
@@ -376,12 +382,20 @@ const getwatchHistory = asynchandeler(async (req, res) => {
             }
         },
         {
+            $addFields:{
+                watchHistory_count:{
+                    $size:"$watchHistory"
+                }
+            }
+        },
+        {
             $project: {
-                watchHistroy: 1
+                watchHistory: 1,
+                watchHistory_count:1
             }
         }
     ]);
-
+    // console.log(user)
     if (!user.length) {
         throw new Apierror("user not found", 200);
     }
