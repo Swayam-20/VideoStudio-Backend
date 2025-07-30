@@ -31,7 +31,7 @@ app.use(express.static("public")); // this is used to serve static files from th
 
 // router 
 import userRouter from "./routes/user.routes.js";
-
-app.use("/api/v1/user", userRouter); // this is used to handle user related routes
-
+import commentrouter from "./routes/comment.routes.js"; // this is used to handle video related routes
+app.use("/api/v1/users", userRouter); // this is used to handle user related routes
+app.use("/api/v1/comments",commentrouter); // this is used to handle video related routes
 export {app};
