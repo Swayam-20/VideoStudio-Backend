@@ -12,4 +12,7 @@ const router = Router();
 
 router.use(verifyJWT); // Apply JWT verification middleware to all routes
 router.route("/video/:videoId").get(getVideoComments)
+    .post(upload.single('file'), addComment);
+router.route("/video/:videoId/comment/:commentId").patch(updateComment)
+    .delete(deleteComment);
 export default router;
