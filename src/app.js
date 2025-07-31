@@ -32,6 +32,19 @@ app.use(express.static("public")); // this is used to serve static files from th
 // router 
 import userRouter from "./routes/user.routes.js";
 import commentrouter from "./routes/comment.routes.js"; // this is used to handle video related routes
+import likeRouter from "./routes/like.routes.js"; // this is used to handle like related routes
+import videoRouter from "./routes/video.routes.js"; // this is used to handle video related routes
+import tweetRouter from "./routes/tweet.routes.js"; // this is used to handle tweet related routes
+import dashboardRouter from "./routes/dashboard.routes.js"; // this is used to handle dashboard related routes
+import  healthcheckRouter   from "./routes/healthcheck.routes.js"; // this is used to handle healthcheck related routes
+import subscriptionRouter from "./routes/subscription.routes.js"; // this is used to handle subscription related routes
 app.use("/api/v1/users", userRouter); // this is used to handle user related routes
 app.use("/api/v1/comments",commentrouter); // this is used to handle video related routes
+app.use("/api/v1/likes", likeRouter); // this is used to handle like related routes
+app.use("/api/v1/videos", videoRouter); // this is used to handle video related routes
+app.use("/api/v1/tweets", tweetRouter); // this is used to handle tweet related routes
+app.use("/api/v1/dashboard", dashboardRouter); // this is used to handle dashboard related routes
+app.use("/api/v1/healthcheck", healthcheckRouter); // this is used to handle healthcheck related routes
+app.use("/api/v1/subscription", subscriptionRouter); // this is used to handle subscription related routes
+
 export {app};
