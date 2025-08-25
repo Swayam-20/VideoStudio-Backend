@@ -1,13 +1,9 @@
-# Backend
+# VideoStudio backend 🎥
 
-this is link 
-- [model link](https://app.eraser.io/workspace/H8zHfH4z9Ly90daDXByE?origin=share)
-# PlayStream backend 🎥
-
-*PlayStream backend* is a complete backend system for a video hosting platform, inspired by YouTube.  
+*VideoStudio backend* is a complete backend system for a video hosting platform, inspired by YouTube.  
 It is built with *Node.js, Express.js, MongoDB, and Mongoose* and follows industry-standard practices such as JWT authentication, access & refresh tokens, and secure password hashing with bcrypt.  
 
-With PlayStream, users can sign up, log in, upload videos, like/dislike, comment, reply, subscribe/unsubscribe — making it a *full-fledged backend system* for a scalable video platform.
+With VideoStudio, users can sign up, log in, upload videos, like/dislike, comment, reply, subscribe/unsubscribe — making it a *full-fledged backend system* for a scalable video platform.
 
 ---
 
