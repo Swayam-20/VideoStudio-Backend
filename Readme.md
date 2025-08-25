@@ -50,11 +50,19 @@ npm install
 3. Configure Environment Variables
 Rename .env.example to .env and add your own values:
 ```
-PORT=3000
-MONGO_URI=your_mongo_connection_string
-JWT_SECRET=your_jwt_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
-CLOUD_STORAGE_KEY=optional_if_used
+PORT=8000
+CLIENT_URL=*
+ACCESS_TOKEN_SECRET=your_access_token_secret
+ACCESS_TOKEN_EXPIRY=your_access_token_expiry
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+REFRESH_TOKEN_EXPIRY=your_refresh_token_expiry
+
+
+CLOUDINARY_CLOUD_NAME=12345678
+CLOUDINARY_API_KEY=1234567
+CLOUDINARY_API_SECRET=123456
+
+
 ```
 
 
@@ -73,7 +81,7 @@ npm start
 5. Access the API
 Once the server is running, open:
 ```
-http://localhost:3000
+http://localhost:8000
 ```
 
 
