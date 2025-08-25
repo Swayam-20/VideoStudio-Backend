@@ -35,8 +35,8 @@ With VideoStudio, users can sign up, log in, upload videos, like/dislike, commen
 1. Clone the repository
  
 ```
-git clone https://github.com/Shivamsharma20055/PlayStream-backend.git
-cd PlayStream-backend
+git clone https://github.com/Swayam-20/VideoStudio-Backend.git
+cd VideoStudio-backend
 ```
 
 
