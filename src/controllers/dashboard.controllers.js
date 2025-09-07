@@ -49,7 +49,7 @@ const getChannelVideos = asynchandeler(async (req, res) => {
     );
 })
 
-export {
+export  {
     getChannelStats,
     getChannelVideos
     }

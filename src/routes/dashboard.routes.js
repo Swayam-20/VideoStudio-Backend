@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
-    getChannelStats,
-    getChannelVideos
+    getChannelStats, getChannelVideos
     }
 from "../controllers/dashboard.controllers.js";
 const router = Router();

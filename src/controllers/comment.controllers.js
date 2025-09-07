@@ -3,7 +3,7 @@ import Comment from "../models/comment.model.js"
 import ApiError from "../utils/ApiError.js"
 import Apiresponse from "../utils/Apiresponse.js";
 import asynchandeler from "../utils/asynchandler.js";
-import {Video} from "../models/video.model.js"
+import Video from "../models/video.model.js"
 const getVideoComments = asynchandeler(async (req, res) => {
     //TODO: get all comments for a video
     const {videoId} = req.params

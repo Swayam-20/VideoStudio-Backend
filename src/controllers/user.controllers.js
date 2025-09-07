@@ -33,12 +33,9 @@ const registeruser = asynchandeler(async (req, res) => {
         throw new Apierror("Email or username already exists", 409);
     }
 
-    const avatarlocalpath = req.files?.avatar[0]?.path;
+    const avatarlocalpath = req.files?.avatar?.[0]?.path;
 
-    let coverImagelocalpath;
-    if (req.files?.coverImage && req.files.coverImage.length > 0) {
-        coverImagelocalpath = req.files.coverImage[0].path;
-    }
+    const coverImagelocalpath = req.files?.coverImage?.[0]?.path;
 
     if (!avatarlocalpath || !coverImagelocalpath) {
         throw new Apierror("Avatar and cover image are required", 400);
@@ -63,15 +60,23 @@ const registeruser = asynchandeler(async (req, res) => {
         coverImage: coverImage?.url || null,
         password
     });
-
+    await user.save({ validatebeforeSave: false });
+    const { accessToken, refreshToken } = await generateAccessTokenAndRefreshTOKEN(user._id);
     const createdUser = await User.findById(user._id).select("-password -refreshToken");
 
     if (!createdUser) {
         throw new Apierror("User creation failed", 500);
     }
-
-    return res.status(201).json(
-        new Apiresponse(200, "User registered successfully", createdUser)
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+    
+    return res.status(201)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+        new Apiresponse(201, "User registered successfully", createdUser)
     );
 });
 
@@ -202,11 +207,7 @@ const changecurrentpassword = asynchandeler(async (req, res) => {
     
     return res
     .status(200)
-    .json(new Apiresponse
-        (
-            201, {}, "password change successfully"
-        )
-    );
+    .json(new Apiresponse(200, "password change successfully", {}));
 
 });
 
@@ -215,7 +216,7 @@ const getcurrentuser = asynchandeler(async (req, res) => {
     //  it may have internal references that cause this error.
     const { _id , username , fullname }=req.user
     console.log(username)
-    return res.status(200).json(new Apiresponse(201,{ _id , username , fullname }, "Current user"));
+    return res.status(200).json(new Apiresponse(200, "Current user", { _id , username , fullname }));
 });
 
 const updateUserDetail = asynchandeler(async (req, res) => {
@@ -231,7 +232,7 @@ const updateUserDetail = asynchandeler(async (req, res) => {
         { new: true }
     ).select("-password");
     
-    return res.status(200).json(new Apiresponse(201, {fullname,email} , "Detail Update successfully"));
+    return res.status(200).json(new Apiresponse(200, "Detail Update successfully", {fullname,email} ));
 });
 
 const updateUserAvatar = asynchandeler(async (req, res) => {
@@ -240,7 +241,7 @@ const updateUserAvatar = asynchandeler(async (req, res) => {
     if (!avatarlocalpath) {
         throw new Apierror("invalid path", 401);
     }
-
+    
     const avatar = await uploadfileoncloudinay(avatarlocalpath);
     if (!avatar.url) {
         throw new Apierror("file not uploaded", 500);
@@ -257,7 +258,7 @@ const updateUserAvatar = asynchandeler(async (req, res) => {
         { new: true }
     ).select("-passowrd");
 
-    return res.status(200).json(new Apiresponse(201, user, "Avatar updated successfully"));
+    return res.status(200).json(new Apiresponse(200, "Avatar updated successfully", user));
 });
 
 const updateUserCoverImage = asynchandeler(async (req, res) => {
@@ -278,7 +279,7 @@ const updateUserCoverImage = asynchandeler(async (req, res) => {
         { new: true }
     ).select("-password");
 
-    return res.status(200).json(new Apiresponse(201, user, "cover Image updated successfully"));
+    return res.status(200).json(new Apiresponse(200, "cover Image updated successfully", user));
 });
 
 const getUserChannelprofile = asynchandeler(async (req, res) => {
@@ -336,7 +337,7 @@ const getUserChannelprofile = asynchandeler(async (req, res) => {
             }
         }
     ]);
-    console.log(channel.length)
+    // console.log(channel.length)
     if (!channel.length) {
         throw new Apierror("channel doesn't exist", 400);
     }
@@ -397,10 +398,10 @@ const getwatchHistory = asynchandeler(async (req, res) => {
     ]);
     // console.log(user)
     if (!user.length) {
-        throw new Apierror("user not found", 200);
+        throw new Apierror("user not found", 404);
     }
 
-    return res.status(200).json(new Apiresponse(201, user[0], "successfully fetch Watch History"));
+    return res.status(200).json(new Apiresponse(200, "successfully fetch Watch History", user[0] ));
 });
 
 export {

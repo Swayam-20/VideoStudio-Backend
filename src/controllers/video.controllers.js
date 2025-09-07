@@ -7,7 +7,7 @@ import Apiresponse from "../utils/Apiresponse.js"
 import uploadfileoncloudinay  from "../utils/cloudinary.js"
 
 
-const getAllVideos = asynchandeler(async (req, res) => {
+const GetAllVideos = asynchandeler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
     const options = {
@@ -34,28 +34,31 @@ const getAllVideos = asynchandeler(async (req, res) => {
     )
 })
 
-const publishAVideo = asynchandeler(async (req, res) => {
+const PublishAVideo = asynchandeler(async (req, res) => {
     const { title, description} = req.body
     // TODO: get video, upload to cloudinary, create video
 
-    const { video } = req.files
-    if (!video) {
+    const { videofile, thumbnail } = req.files
+    if (!videofile || videofile.length === 0) {
         throw new Apierror(400, "Video file is required");
     }
     const userId = req.user._id
     if (!isValidObjectId(userId)) {
         throw new Apierror(400, "Invalid user ID");
     }
-    const videofilepath= await req.files.videoFile[0].path
+    const videofilepath = videofile[0].path
     if (!videofilepath) {
         throw new Apierror(400, "Video file path is required");
     }
     if (!title || !description) {
         throw new Apierror(400, "Title and description are required");
     }
-    // const thumbnail = req.files.thumbnail[0].path
-    const videoUrl = await uploadfileoncloudinay(videofilepath, "videos")
-    const thumbnailUrl = await uploadfileoncloudinay(video.tempFilePath, "thumbnails")
+    
+    const videoUrl = await uploadfileoncloudinay(videofilepath)
+    let thumbnailUrl = null
+    if (thumbnail && thumbnail.length > 0) {
+        thumbnailUrl = await uploadfileoncloudinay(thumbnail[0].path)
+    }
 
     const newVideo = await Video.create({
         title,
@@ -71,12 +74,12 @@ const publishAVideo = asynchandeler(async (req, res) => {
     await newVideo.save()
     return res.status(201).json(
         new Apiresponse(
-            210, newVideo, "Video published successfully"
+            201, "Video published successfully", newVideo
         )
     )
 })
 
-const getVideoById = asynchandeler(async (req, res) => {
+const GetVideoById = asynchandeler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
     if (!isValidObjectId(videoId)) {
@@ -93,7 +96,7 @@ const getVideoById = asynchandeler(async (req, res) => {
     )
 })
 
-const updateVideo = asynchandeler(async (req, res) => {
+const UpdateVideo = asynchandeler(async (req, res) => {
     const { videoId } = req.params
     //TODO: update video details like title, description, thumbnail
     const { title, description } = req.body
@@ -122,7 +125,7 @@ const updateVideo = asynchandeler(async (req, res) => {
 
 })
 
-const deleteVideo = asynchandeler(async (req, res) => {
+const DeleteVideo = asynchandeler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
     if (!isValidObjectId(videoId)) {
@@ -139,7 +142,7 @@ const deleteVideo = asynchandeler(async (req, res) => {
     )
 })
 
-const togglePublishStatus = asynchandeler(async (req, res) => {
+const TogglePublishStatus = asynchandeler(async (req, res) => {
     const { videoId } = req.params
 
     const userId = req.user._id
@@ -167,11 +170,11 @@ const togglePublishStatus = asynchandeler(async (req, res) => {
     }
 })
 
-export default {
-    getAllVideos,
-    publishAVideo,
-    getVideoById,
-    updateVideo,
-    deleteVideo,
-    togglePublishStatus
+export {
+    GetAllVideos,
+    PublishAVideo,
+    GetVideoById,
+    UpdateVideo,
+    DeleteVideo,
+    TogglePublishStatus
 }

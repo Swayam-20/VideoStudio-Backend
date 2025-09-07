@@ -1,24 +1,25 @@
 import { Router } from "express";
-import  {
-    getAllVideos,
-    publishAVideo,
-    getVideoById,
-    updateVideo,
-    deleteVideo,
-    togglePublishStatus
+import {  GetAllVideos,
+    PublishAVideo,
+    GetVideoById,
+    UpdateVideo,
+    DeleteVideo,
+    TogglePublishStatus
 } from "../controllers/video.controllers.js";
+
+
 import verifyJWT from "../middlewares/auth.middleware.js";
-import {upload} from "../middlewares/upload.middleware.js";
+import {upload} from "../middlewares/multer.middleware.js";
 
 const router = Router();
-router.use(verifyJWT);
+router.use(verifyJWT); // this is used to protect all the routes below this line
 router
     .route("/")
-    .get(getAllVideos)
+    .get(GetAllVideos)
     .post(
         upload.fields([
             {
-                name: "videoFile",
+                name: "videofile",
                 maxCount: 1,
             },
             {
@@ -27,15 +28,12 @@ router
             },
             
         ]),
-        publishAVideo
+        PublishAVideo
     );
 
 
 
 
-router.route("/publish").post(publishAVideo);
-router.route("/:videoId").get(getVideoById);
-router.route("/:videoId").put(updateVideo);
-router.route("/:videoId").delete(deleteVideo);
-router.route("/:videoId/toggle-publish").put(togglePublishStatus);
+router.route("/:videoId").get(GetVideoById).patch(upload.single("thumbnail"), UpdateVideo).delete(DeleteVideo);
+router.route("/:videoId/toggle-publish").put(TogglePublishStatus);
 export default router;

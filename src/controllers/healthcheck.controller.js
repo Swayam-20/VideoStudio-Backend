@@ -1,4 +1,4 @@
-import {ApiError} from "../utils/ApiError.js"
+import ApiError from "../utils/ApiError.js"
 import Apiresponse from "../utils/Apiresponse.js";
 import asynchandeler from "../utils/asynchandler.js";
 
@@ -12,7 +12,6 @@ const healthcheck = asynchandeler(async (req, res) => {
     )
 })
 
-export {
-    healthcheck
-    }
+export default healthcheck
+    
     

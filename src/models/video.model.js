@@ -42,4 +42,5 @@ const videoSchema = new Schema({
 },{timestamps: true}); // Automatically add createdAt and updatedAt fields
 
 videoSchema.plugin(mongooseAggregatePaginate); // Plugin for pagination
-export const Video = mongoose.model('Video', videoSchema);
+ const Video = mongoose.model('Video', videoSchema);
+ export default Video; // Export the Video model
