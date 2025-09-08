@@ -22,7 +22,9 @@ router.route("/register").post(
     ]), // Specify the fields you want to upload, e.g., [{ name: 'avatar' }, { name: 'coverImage' }]
 
     registeruser);
-
+router.route("/hi").get((req,res)=>{
+    return res.send("hello")
+})
 router.route("/login").post(loginuser);
 router.route("/logout").post(verifyJWT,loggoutuser);
 router.route("/refreshAccessToken").post(RefreshAccessToken);
